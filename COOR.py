@@ -4,6 +4,8 @@ from io import BytesIO
 from docx import Document
 from datetime import datetime, timezone, timedelta
 import re
+import json
+import os
 
 st.set_page_config(page_title="COOR TOOL VJ DAD", layout="wide")
 
@@ -12,10 +14,21 @@ now_vn = datetime.now(timezone(timedelta(hours=7)))
 
 st.title("✈️ Trình tạo mail éo tàu Vietjet DAD")
 st.caption(f"Ngày tạo báo cáo: {now_vn.strftime('%d/%m/%Y')}")
+# ---HÀM JSON---
+DATA_FILE = "plans_data.json"
 
+def save_plans(plans):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(plans, f, ensure_ascii=False, indent=2)
+
+def load_plans():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
 # --- KHỞI TẠO SESSION STATE ---
 if 'plans' not in st.session_state:
-    st.session_state.plans = []
+    st.session_state.plans = load_plans()
 if 'editing_index' not in st.session_state:
     st.session_state.editing_index = None
 
@@ -232,11 +245,13 @@ with st.form("plan_form", clear_on_submit=True):
             
             new_plan['changed_fields'] = changed_fields
             st.session_state.plans[edit_idx] = new_plan
+            save_plans(st.session_state.plans)
             st.session_state.editing_index = None
             st.success("Đã cập nhật kế hoạch!")
         else:
             new_plan['changed_fields'] = []
             st.session_state.plans.append(new_plan)
+            save_plans(st.session_state.plans)
             st.success("Đã thêm kế hoạch mới!")
         st.rerun()
 
@@ -279,6 +294,7 @@ else:
             if c2.button("🔼", key=f"up_{i}", help="Di chuyển lên"):
                 if i > 0:
                     st.session_state.plans[i], st.session_state.plans[i-1] = st.session_state.plans[i-1], st.session_state.plans[i]
+                    save_plans(st.session_state.plans)
                     st.rerun()
             
             # Nút di chuyển xuống
@@ -295,6 +311,7 @@ else:
             # Nút xóa
             if c5.button("❌", key=f"del_{i}", help="Xóa"):
                 st.session_state.plans.pop(i)
+                save_plans(st.session_state.plans)
                 if st.session_state.editing_index == i:
                     st.session_state.editing_index = None
                 st.rerun()
