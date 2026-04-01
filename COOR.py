@@ -5,12 +5,12 @@ from docx import Document
 from datetime import datetime, timezone, timedelta
 import re
 
-st.set_page_config(page_title="Báo cáo Kéo tàu VJ DAD", layout="wide")
+st.set_page_config(page_title="COOR TOOL VJ DAD", layout="wide")
 
 # Lấy giờ Việt Nam
 now_vn = datetime.now(timezone(timedelta(hours=7)))
 
-st.title("✈️ Trình tạo Báo cáo Kéo tàu Vietjet DAD")
+st.title("✈️ Trình tạo mail éo tàu Vietjet DAD")
 st.caption(f"Ngày tạo báo cáo: {now_vn.strftime('%d/%m/%Y')}")
 
 # --- KHỞI TẠO SESSION STATE ---
@@ -81,7 +81,7 @@ def generate_report_content(plans, highlight=False, kinh_gui=""):
 
         # Kiểm tra điều kiện ẩn chi tiết
         gc_upper = str(plan['Ghi chú']).upper()
-        if "HUỶ KẾ HOẠCH KÉO" in gc_upper or "ĐÃ HOÀN THÀNH" in gc_upper:
+        if "CNX" in gc_upper or "DONE" in gc_upper:
             report_lines.append("") # Dòng trống sau mục đã hoàn thành/hủy
             continue
 
