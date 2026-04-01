@@ -74,15 +74,21 @@ def generate_report_content(plans, highlight=False, kinh_gui=""):
                 title += f" **{sta_str}**"
         
         if plan['Ghi chú']:
-            gc_str = f"({plan['Ghi chú']})"
+            gc_upper = str(plan['Ghi chú']).upper()
+            if "CNX" in gc_upper:
+                gc_display = "HUỶ KẾ HOẠCH KÉO"
+            elif "DONE" in gc_upper:
+                gc_display = "ĐÃ HOÀN THÀNH"
+            else:
+                gc_display = plan['Ghi chú']
+            gc_str = f"({gc_display})"
             if 'Ghi chú' in changed and highlight: gc_str = f"=={gc_str}=="
             title += f" **{gc_str}**"
-        report_lines.append(title)
 
         # Kiểm tra điều kiện ẩn chi tiết
         gc_upper = str(plan['Ghi chú']).upper()
         if "CNX" in gc_upper or "DONE" in gc_upper:
-            report_lines.append("") # Dòng trống sau mục đã hoàn thành/hủy
+            report_lines.append("")
             continue
 
         # Kéo tới (Luôn hiện nếu có thông tin)
