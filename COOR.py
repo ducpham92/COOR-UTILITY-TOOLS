@@ -12,7 +12,7 @@ st.set_page_config(page_title="COOR TOOL VJ DAD", layout="wide")
 # Lấy giờ Việt Nam
 now_vn = datetime.now(timezone(timedelta(hours=7)))
 
-st.title("✈️ Trình tạo mail éo tàu Vietjet DAD")
+st.title("✈️ Trình tạo mail kéo tàu Vietjet DAD")
 st.caption(f"Ngày tạo báo cáo: {now_vn.strftime('%d/%m/%Y')}")
 # ---HÀM JSON---
 DATA_FILE = "plans_data.json"
