@@ -45,6 +45,9 @@ def generate_report_content(plans, highlight=False, kinh_gui=""):
     
     # Header 
     report_lines = []
+    # Thêm tiêu đề mail
+    report_lines.append(f"**KẾ HOẠCH KÉO TÀU VJ DAD NGÀY {today_str}**")
+    report_lines.append("")  # Dòng trống sau tiêu đề
     if kinh_gui:
         report_lines.extend(kinh_gui.split('\n'))
     
