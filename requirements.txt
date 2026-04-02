@@ -1,5 +1,8 @@
 streamlit
-pandas
-python-docx
-plotly
 docxtpl
+python-docx
+pandas
+lxml
+jinja2
+MarkupSafe
+typing_extensions
