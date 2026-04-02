@@ -111,8 +111,15 @@ def tab_bao_cao_su_vu():
                 buffer = BytesIO()
                 doc.save(buffer)
                 buffer.seek(0)
-                
-                ten_file_xuat = f"BAO_CAO_SU_CO_{so_hieu_tau.upper()}_{datetime.now().strftime('%d%m')}.docx"
+
+                flight_norm = (chuyen_bay or "").strip().upper()
+                reg_norm = (so_hieu_tau or "").strip().upper()
+                if reg_norm and "VN-" not in reg_norm:
+                    reg_norm = f"VN-{reg_norm}"
+                date_compact = f"{str(ngay).zfill(2)}{str(thang).zfill(2)}{str(nam)}"
+                ten_file_xuat = f"BÁO CÁO SỰ CỐ {flight_norm} {reg_norm} NGÀY {date_compact}.docx"
+                ten_file_xuat = re.sub(r'[<>:"/\\\\|?*]+', "-", ten_file_xuat)
+                ten_file_xuat = re.sub(r"\\s+", " ", ten_file_xuat).strip()
 
                 st.success("✅ Đã điền báo cáo vào template thành công!")
                 st.download_button(
@@ -154,7 +161,7 @@ def tab_bao_cao_su_vu():
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4 = st.tabs(["✈️ Kế hoạch Kéo tàu", "📋 Báo cáo Sự cố CAAV", "🔋 Request SAGS GPU", "📝 Request ONE_OFF"])
+tab1, tab2, tab3, tab4 = st.tabs(["✈️ Kế hoạch Kéo tàu", "� Request SAGS GPU", "�📋 Báo cáo Sự cố CAAV", "📝 Request ONE_OFF"])
 
 with tab1:
     st.title("✈️ Trình tạo mail kéo tàu Vietjet DAD")
@@ -494,10 +501,10 @@ with tab1:
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 use_container_width=True
             )
-with tab2:
+with tab3:
     tab_bao_cao_su_vu()
 
-with tab3:
+with tab2:
     st.title("🔋 Request SAGS phục vụ GPU")
     st.caption(f"Ngày hiện tại: {now_vn.strftime('%d/%m/%Y')}")
 
@@ -709,10 +716,21 @@ with tab4:
                 buffer.seek(0)
                 
                 st.success("✅ Đã tạo ONE-OFF Authorization thành công!")
+                ac_reg_clean = (ac_reg or "").strip().upper()
+                reg_short = ac_reg_clean
+                if reg_short.startswith("VN-") or reg_short.startswith("HS-"):
+                    reg_short = reg_short.split("-", 1)[1]
+                reg_short = reg_short.replace(" ", "")
+                auth_no_clean = (auth_no or "").strip().upper()
+                auth_no_clean = re.sub(r"[^A-Z0-9]+", "-", auth_no_clean).strip("-")
+                date_compact = now_vn.strftime("%d%m%Y")
+                one_off_file = f"ONE-OFF_{reg_short}_VJC-CRS-{auth_no_clean}_{date_compact}.docx"
+                one_off_file = re.sub(r'[<>:"/\\\\|?*]+', "-", one_off_file)
+                one_off_file = re.sub(r"\\s+", " ", one_off_file).strip()
                 st.download_button(
                     label="📥 Tải ONE-OFF (.docx)",
                     data=buffer,
-                    file_name=f"ONE_OFF_{ac_reg.upper()}_{datetime.now().strftime('%d%m')}.docx",
+                    file_name=one_off_file,
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     use_container_width=True
                 )
