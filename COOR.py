@@ -600,18 +600,16 @@ VJ DAD gửi danh sách tàu có kế hoạch bảo dưỡng cần SAGS phục v
 """
             date_short = now_vn.strftime('%d/%m/%y')
             for i, item in enumerate(parsed_list):
-                table_html += f"""
-    <tr style="text-align: center;">
-        <td>{i+1}</td>
-        <td>{date_short}</td>
-        <td>{item['FLIGHT']}</td>
-        <td>{item['ROUTE']}</td>
-        <td>{item['A/C']}</td>
-        <td>{item['STA']}</td>
-        <td>{item['STD']}</td>
-        <td></td>
-    </tr>
-"""
+                table_html += f"""<tr style="text-align: center;">
+<td>{i+1}</td>
+<td>{date_short}</td>
+<td>{item['FLIGHT']}</td>
+<td>{item['ROUTE']}</td>
+<td>{item['A/C']}</td>
+<td>{item['STA']}</td>
+<td>{item['STD']}</td>
+<td></td>
+</tr>"""
             table_html += "</table>"
 
             st.divider()
@@ -623,15 +621,13 @@ VJ DAD gửi danh sách tàu có kế hoạch bảo dưỡng cần SAGS phục v
             
             # Hiển thị Nội dung (HTML Preview)
             st.markdown(f"**Nội dung Mail:**")
-            full_html = f"""
-<div style="font-family: Arial; font-size: 14px; color: black;">
-    {mail_body_top.replace('\n', '<br>')}
-    <br>
-    {table_html}
-    <br>
-    {mail_body_bottom}
-</div>
-"""
-            st.write(full_html, unsafe_allow_html=True)
+            full_html = f"""<div style="font-family: Arial; font-size: 14px; color: black;">
+{mail_body_top.replace('\n', '<br>')}
+<br>
+{table_html}
+<br>
+{mail_body_bottom}
+</div>"""
+            st.markdown(full_html, unsafe_allow_html=True)
             
             st.caption("👇 Bôi đen toàn bộ nội dung trên (bao gồm cả bảng) để Copy & Paste vào Outlook/Gmail.")
