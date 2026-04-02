@@ -497,4 +497,4 @@ with tab1:
                 use_container_width=True
             )
 with tab2:
-    tab_bao_cao_su_vu.tab_bao_cao_su_vu()
+    tab_bao_cao_su_vu()
