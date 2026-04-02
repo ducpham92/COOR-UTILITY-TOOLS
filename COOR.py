@@ -36,7 +36,6 @@ def tab_bao_cao_su_vu():
         
         # Biến ngày tháng năm đầy đủ để điền vào template
         ngay_thang_nam = f"{ngay} tháng {thang} năm {nam}"
-
         st.divider()
         st.markdown("##### ✈️ 1. Thông tin tổng quát")
 
@@ -155,7 +154,7 @@ def tab_bao_cao_su_vu():
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["✈️ Kế hoạch Kéo tàu", "📋 Báo cáo Sự cố CAAV"])
+tab1, tab2, tab3 = st.tabs(["✈️ Kế hoạch Kéo tàu", "📋 Báo cáo Sự cố CAAV", "🔋 Request SAGS GPU"])
 
 with tab1:
     st.title("✈️ Trình tạo mail kéo tàu Vietjet DAD")
@@ -497,3 +496,142 @@ with tab1:
             )
 with tab2:
     tab_bao_cao_su_vu()
+
+with tab3:
+    st.title("🔋 Request SAGS phục vụ GPU")
+    st.caption(f"Ngày hiện tại: {now_vn.strftime('%d/%m/%Y')}")
+
+    # --- HÀM TRÍCH XUẤT DỮ LIỆU ---
+    def parse_sags_gpu_input(text):
+        import re
+        lines = text.strip().split('\n')
+        results = []
+        for line in lines:
+            if not line.strip(): continue
+            
+            # Tách các thành phần bằng khoảng trắng hoặc tab
+            parts = line.split()
+            if len(parts) < 8: continue
+            
+            # Tìm số hiệu tàu (thường bắt đầu bằng VN- hoặc HS-)
+            ac_reg = ""
+            for p in parts:
+                if p.startswith("VN-") or p.startswith("HS-"):
+                    ac_reg = p
+                    break
+            
+            # Tìm các mốc thời gian HH:MM
+            times = re.findall(r'\d{2}:\d{2}', line)
+            
+            try:
+                # Heuristic trích xuất dựa trên cấu trúc copy từ web:
+                # # Date Flight Type Route AC_Reg ... ARR ... DEP
+                # Example: 14 02-Apr VJ721 / VJ633 S HPH-DAD / DAD-SGN VN-A648 ... 12:35 ... 14:50
+                
+                # Flight: Lấy phần trước dấu gạch chéo đầu tiên
+                flt_no = parts[2]
+                
+                # Route: Lấy phần trước dấu gạch chéo thứ hai
+                # Tìm index của dấu gạch chéo đầu tiên trong parts sau index 2
+                slash_indices = [i for i, x in enumerate(parts) if x == "/"]
+                
+                route = ""
+                if len(slash_indices) >= 2:
+                    route = parts[slash_indices[1]-1] # Phần trước dấu / thứ 2
+                else:
+                    # Fallback nếu không tìm thấy cấu trúc chuẩn
+                    for p in parts:
+                        if "-" in p and not p.startswith("VN-") and not p.startswith("HS-"):
+                            route = p
+                            break
+                
+                sta = times[0] if len(times) >= 1 else ""
+                std = times[-1] if len(times) >= 2 else ""
+                
+                results.append({
+                    "FLIGHT": f"{flt_no} / ____",
+                    "ROUTE": f"{route} / ____",
+                    "A/C": ac_reg,
+                    "STA": sta,
+                    "STD": "" # Theo mẫu ảnh 1 STD để trống
+                })
+            except:
+                continue
+        return results
+
+    # --- UI TAB 3 ---
+    st.subheader("1. Dán dữ liệu từ lịch bay")
+    st.info("Copy nguyên dòng từ web lịch bay (có đủ cột #, Date, Flight, Route...) rồi dán vào ô dưới đây. Mỗi chuyến một dòng.")
+    
+    raw_data = st.text_area("Dán dữ liệu vào đây:", height=200, placeholder="14 02-Apr VJ721 / VJ633 S HPH-DAD / DAD-SGN VN-A648 A321 12:35 12:35 14:50")
+    
+    if raw_data:
+        parsed_list = parse_sags_gpu_input(raw_data)
+        
+        if not parsed_list:
+            st.error("Không thể trích xuất dữ liệu. Vui lòng kiểm tra lại định dạng dán vào.")
+        else:
+            st.subheader("2. Kiểm tra dữ liệu đã trích xuất")
+            st.table(parsed_list)
+            
+            # --- TẠO NỘI DUNG MAIL ---
+            date_str = now_vn.strftime('%d/%m/%Y')
+            subject = f"DANH SÁCH TÀU DỰ KIẾN CẦN SAGS PHỤC VỤ GPU - NGÀY {date_str}"
+            
+            mail_body_top = f"""Dear Sags,
+Theo yêu cầu của Sags, để tiện việc bố trí nhân sự vận hành GPU của Sags.
+VJ DAD gửi danh sách tàu có kế hoạch bảo dưỡng cần SAGS phục vụ GPU (trong trường hợp GPU của VJ không đủ) ngày {date_str} như sau:
+"""
+            mail_body_bottom = "VJ DAD sẽ update lại nếu có sự thay đổi!"
+
+            # Tạo bảng HTML cho mail
+            table_html = """
+<table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial; font-size: 13px;">
+    <tr style="background-color: #f2f2f2; text-align: center;">
+        <th>STT</th>
+        <th>DATE</th>
+        <th>FLIGHT</th>
+        <th>ROUTE</th>
+        <th>A/C</th>
+        <th>STA</th>
+        <th>STD</th>
+        <th>NOTE</th>
+    </tr>
+"""
+            date_short = now_vn.strftime('%d/%m/%y')
+            for i, item in enumerate(parsed_list):
+                table_html += f"""
+    <tr style="text-align: center;">
+        <td>{i+1}</td>
+        <td>{date_short}</td>
+        <td>{item['FLIGHT']}</td>
+        <td>{item['ROUTE']}</td>
+        <td>{item['A/C']}</td>
+        <td>{item['STA']}</td>
+        <td>{item['STD']}</td>
+        <td></td>
+    </tr>
+"""
+            table_html += "</table>"
+
+            st.divider()
+            st.subheader("3. Mẫu Email (Sẵn sàng để Copy)")
+            
+            # Hiển thị Tiêu đề
+            st.markdown(f"**Tiêu đề Mail:**")
+            st.code(subject, language="text")
+            
+            # Hiển thị Nội dung (HTML Preview)
+            st.markdown(f"**Nội dung Mail:**")
+            full_html = f"""
+<div style="font-family: Arial; font-size: 14px; color: black;">
+    {mail_body_top.replace('\n', '<br>')}
+    <br>
+    {table_html}
+    <br>
+    {mail_body_bottom}
+</div>
+"""
+            st.write(full_html, unsafe_allow_html=True)
+            
+            st.caption("👇 Bôi đen toàn bộ nội dung trên (bao gồm cả bảng) để Copy & Paste vào Outlook/Gmail.")
