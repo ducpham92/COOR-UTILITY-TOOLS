@@ -1,0 +1,50 @@
+import streamlit as st
+from docxtpl import DocxTemplate
+import io
+
+def app():
+    st.title("Hệ thống Tiện ích Technical")
+
+    # Tạo các Tab
+    tab1, tab2, tab_word = st.tabs(["Tiện ích 1", "Tiện ích 2", "Tự động hóa Word"])
+
+    with tab_word:
+        st.header("Nhập thông tin biểu mẫu")
+        
+        # Tạo giao diện nhập liệu
+        with st.form("word_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                name = st.text_input("Họ và tên")
+                staff_id = st.text_input("Mã nhân viên")
+            with col2:
+                date = st.date_input("Ngày thực hiện")
+                content = st.text_area("Nội dung công việc")
+            
+            submit = st.form_submit_button("Tạo file Word")
+
+        if submit:
+            # Xử lý file Word
+            template_path = "template.docx" # File mẫu bạn để trên server
+            doc = DocxTemplate(template_path)
+            
+            context = {
+                'ten_nhan_vien': name,
+                'msnv': staff_id,
+                'ngay': date.strftime("%d/%m/%Y"),
+                'noi_dung': content
+            }
+            
+            doc.render(context)
+            
+            # Lưu file vào bộ nhớ đệm để người dùng tải về
+            bio = io.BytesIO()
+            doc.save(bio)
+            
+            st.success("Đã tạo file thành công!")
+            st.download_button(
+                label="Tải file Word về máy",
+                data=bio.getvalue(),
+                file_name=f"Report_{staff_id}.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
