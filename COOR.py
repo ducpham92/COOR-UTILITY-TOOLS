@@ -154,7 +154,7 @@ def tab_bao_cao_su_vu():
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["✈️ Kế hoạch Kéo tàu", "📋 Báo cáo Sự cố CAAV", "🔋 Request SAGS GPU"])
+tab1, tab2, tab3, tab4 = st.tabs(["✈️ Kế hoạch Kéo tàu", "📋 Báo cáo Sự cố CAAV", "🔋 Request SAGS GPU", "📝 Request ONE_OFF"])
 
 with tab1:
     st.title("✈️ Trình tạo mail kéo tàu Vietjet DAD")
@@ -629,3 +629,92 @@ VJ DAD gửi danh sách tàu có kế hoạch bảo dưỡng cần SAGS phục v
             st.markdown(full_html, unsafe_allow_html=True)
             
             st.caption("👇 Bôi đen toàn bộ nội dung trên (bao gồm cả bảng) để Copy & Paste vào Outlook/Gmail.")
+
+with tab4:
+    st.title("📝 Request ONE-OFF AUTHORIZATION")
+    st.caption(f"Ngày tạo: {now_vn.strftime('%d/%m/%Y')}")
+
+    with st.form("form_one_off"):
+        st.markdown("##### 👤 1. Applicant Information")
+        c1, c2 = st.columns(2)
+        applicant_name = c1.text_input("Applicant name:", placeholder="VD: NGUYEN HUY HOANG")
+        auth_no = c2.text_input("Auth. No.:", placeholder="VD: VJC.CRS.439")
+        
+        c1, c2 = st.columns(2)
+        licence_no = c1.text_input("Licence Number:", placeholder="VD: 54361-AMT")
+        expiry_date = c2.text_input("Expiry date:", placeholder="VD: 31MAY2029")
+        
+        auth_scope = st.text_input("Current authorization scope:", value="A320/A321 CAT A ( CFM56/PW1100G)")
+        ac_type_spec = st.text_input("On A/C Type/ Speciality:", value="A320/A321 CAT A ( CFM56/PW1100G)")
+        
+        experience_years = st.number_input("Aircraft/ Engines/ maintenance experience (in years):", min_value=0, value=8)
+
+        st.divider()
+        st.markdown("##### 🔍 2. Situation & Request Details")
+        background = st.text_area("Situation/ Background:", placeholder="VD: FQI IN DEGRADED MODE")
+        request_functions = st.text_area("One-Off Authorization Requested with Functions:", 
+                                        placeholder="VD: RAISE MEL 28-07-01-02 FOR A/C A699 IN VCL ON 07FEB26")
+
+        st.divider()
+        st.markdown("##### ✈️ 3. Aircraft & Engine Details")
+        c1, c2, c3 = st.columns(3)
+        ac_type_input = c1.text_input("On A/C type:", value="A320")
+        ac_reg = c2.text_input("A/C Reg:", placeholder="VD: VN-A699")
+        engine_type = c3.text_input("Engine type:", value="CFM56")
+        
+        c1, c2 = st.columns(2)
+        eng1_sn = c1.text_input("Eng # 1 S/N:", placeholder="VD: 569959")
+        eng2_sn = c2.text_input("Eng # 2 S/N:", placeholder="VD: 699161")
+        
+        c1, c2 = st.columns(2)
+        station = c1.text_input("Station:", value="DAD")
+        date_duration = c2.text_input("Date/Duration:", value=now_vn.strftime("%d/%m/%Y"))
+
+        st.divider()
+        st.markdown("##### 🖊️ 4. Manager Confirmation")
+        manager_name = st.text_input("Manager Name:", value="HỒ HỮU ĐÔNG")
+        
+        submitted = st.form_submit_button("📄 Điền ONE-OFF Template & Tải xuống", type="primary", use_container_width=True)
+
+    if submitted:
+        template_file = "one_off.docx"
+        if not os.path.exists(template_file):
+            st.error(f"❌ Không tìm thấy file mẫu: `{template_file}`. Vui lòng tải file này lên thư mục dự án.")
+        else:
+            try:
+                doc = DocxTemplate(template_file)
+                context = {
+                    "applicant_name": applicant_name.upper(),
+                    "auth_scope": auth_scope,
+                    "auth_no": auth_no.upper(),
+                    "licence_no": licence_no,
+                    "ac_type_spec": ac_type_spec,
+                    "expiry_date": expiry_date.upper(),
+                    "experience_years": experience_years,
+                    "background": background.upper(),
+                    "request_functions": request_functions.upper(),
+                    "ac_type": ac_type_input.upper(),
+                    "ac_reg": ac_reg.upper(),
+                    "engine_type": engine_type.upper(),
+                    "eng1_sn": eng1_sn,
+                    "eng2_sn": eng2_sn,
+                    "station": station.upper(),
+                    "date_duration": date_duration,
+                    "manager_name": manager_name.upper(),
+                    "manager_date": date_duration
+                }
+                doc.render(context)
+                buffer = BytesIO()
+                doc.save(buffer)
+                buffer.seek(0)
+                
+                st.success("✅ Đã tạo ONE-OFF Authorization thành công!")
+                st.download_button(
+                    label="📥 Tải ONE-OFF (.docx)",
+                    data=buffer,
+                    file_name=f"ONE_OFF_{ac_reg.upper()}_{datetime.now().strftime('%d%m')}.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    use_container_width=True
+                )
+            except Exception as e:
+                st.error(f"⚠️ Lỗi khi xử lý template: {e}")
