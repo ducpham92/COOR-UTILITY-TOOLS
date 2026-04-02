@@ -585,30 +585,28 @@ VJ DAD gửi danh sách tàu có kế hoạch bảo dưỡng cần SAGS phục v
             mail_body_bottom = "VJ DAD sẽ update lại nếu có sự thay đổi!"
 
             # Tạo bảng HTML cho mail
-            table_html = """
-<table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial; font-size: 13px;">
-    <tr style="background-color: #f2f2f2; text-align: center;">
-        <th>STT</th>
-        <th>DATE</th>
-        <th>FLIGHT</th>
-        <th>ROUTE</th>
-        <th>A/C</th>
-        <th>STA</th>
-        <th>STD</th>
-        <th>NOTE</th>
-    </tr>
-"""
+            table_html = """<table border="1" style="border-collapse: collapse; width: auto; min-width: 600px; font-family: Arial; font-size: 13px;">
+<tr style="background-color: #f2f2f2; text-align: center;">
+<th style="padding: 5px 10px;">STT</th>
+<th style="padding: 5px 10px;">DATE</th>
+<th style="padding: 5px 15px;">FLIGHT</th>
+<th style="padding: 5px 20px;">ROUTE</th>
+<th style="padding: 5px 15px;">A/C</th>
+<th style="padding: 5px 10px;">STA</th>
+<th style="padding: 5px 10px;">STD</th>
+<th style="padding: 5px 20px;">NOTE</th>
+</tr>"""
             date_short = now_vn.strftime('%d/%m/%y')
             for i, item in enumerate(parsed_list):
                 table_html += f"""<tr style="text-align: center;">
-<td>{i+1}</td>
-<td>{date_short}</td>
-<td>{item['FLIGHT']}</td>
-<td>{item['ROUTE']}</td>
-<td>{item['A/C']}</td>
-<td>{item['STA']}</td>
-<td>{item['STD']}</td>
-<td></td>
+<td style="padding: 5px;">{i+1}</td>
+<td style="padding: 5px;">{date_short}</td>
+<td style="padding: 5px;">{item['FLIGHT']}</td>
+<td style="padding: 5px;">{item['ROUTE']}</td>
+<td style="padding: 5px;">{item['A/C']}</td>
+<td style="padding: 5px;">{item['STA']}</td>
+<td style="padding: 5px;">{item['STD']}</td>
+<td style="padding: 5px;"></td>
 </tr>"""
             table_html += "</table>"
 
