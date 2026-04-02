@@ -36,7 +36,6 @@ def tab_bao_cao_su_vu():
         
         # Biến ngày tháng năm đầy đủ để điền vào template
         ngay_thang_nam = f"{ngay} tháng {thang} năm {nam}"
-        st.info(f"👉 Template sẽ hiển thị: **{ngay_thang_nam}** (Sử dụng biến `{{{{ngay_thang_nam}}}}` trong Word)")
 
         st.divider()
         st.markdown("##### ✈️ 1. Thông tin tổng quát")
