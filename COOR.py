@@ -280,12 +280,21 @@ with tab1:
                 report_lines.append(line)
             
             if plan['Kéo khai thác'] == "CÓ":
-                if not plan['Thời gian kéo khai thác'] or plan['Thời gian kéo khai thác'] == "THÔNG BÁO SAU":
+                tgkt = plan['Thời gian kéo khai thác']
+                ktch = plan['Khai thác chuyến']
+                if not tgkt or tgkt == "THÔNG BÁO SAU":
+                    # Không có giờ → THÔNG BÁO SAU
                     line = "    - Kéo ra bãi khai thác: **CÓ**. Thời gian dự kiến: **THÔNG BÁO SAU**"
+                elif tgkt and not ktch:
+                    # Có giờ nhưng không có chuyến bay khai thác
+                    tgkt_val = tgkt
+                    if 'Thời gian kéo khai thác' in changed and highlight: tgkt_val = f"=={tgkt_val}=="
+                    line = f"    - Kéo ra bãi khai thác: **CÓ**. Thời gian dự kiến: **{tgkt_val}**"
                 else:
-                    ktch_val = plan['Khai thác chuyến']
+                    # Có đủ cả giờ lẫn chuyến bay khai thác
+                    ktch_val = ktch
                     if 'Khai thác chuyến' in changed and highlight: ktch_val = f"=={ktch_val}=="
-                    tgkt_val = plan['Thời gian kéo khai thác']
+                    tgkt_val = tgkt
                     if 'Thời gian kéo khai thác' in changed and highlight: tgkt_val = f"=={tgkt_val}=="
                     line = f"    - Kéo ra bãi khai thác chuyến: **{ktch_val}**. Thời gian dự kiến: **{tgkt_val}**"
                 report_lines.append(line)
