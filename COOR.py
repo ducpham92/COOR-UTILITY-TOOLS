@@ -312,6 +312,8 @@ with tab1:
 
         # Footer cố định
         report_lines.append("Kính mong TBT, ĐHSĐ sắp xếp tàu về bến thuận tiện cho việc kéo đẩy.")
+        if "SAGS" in kinh_gui.upper():
+            report_lines.append("Điều hành SAGS nhận tốt thông tin và phản hồi!")
         report_lines.append("VJ sẽ cập nhật thông tin khi kế hoạch thay đổi.")
         
         return "\n".join(report_lines)
