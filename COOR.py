@@ -339,8 +339,7 @@ with tab1:
     co_sags = st.sidebar.checkbox("➕ Thêm Điều hành SAGS vào Kính gửi", value=False)
 
     if co_sags:
-        kinh_gui_base = default_kinh_gui + "
-        -Điều hành SAGS"
+        kinh_gui_base = default_kinh_gui + "\n        -Điều hành SAGS"
     else:
         kinh_gui_base = default_kinh_gui
 
