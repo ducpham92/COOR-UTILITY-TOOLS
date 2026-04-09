@@ -367,7 +367,7 @@ with tab1:
         c1, c2, c3, c4, c5 = st.columns(5)
         tau = c1.text_input("Tàu (VN-)", value=edit_data.get("Tàu", ""), placeholder="A662")
         chuyen = c2.text_input("Chuyến", value=edit_data.get("Chuyến", ""), placeholder="VJ703")
-        sta = c3.text_input("STA / Ghi chú", value=edit_data.get("STA", ""), placeholder="12:30 hoặc PHASE CHECK")
+        sta = c3.text_input("STA", value=edit_data.get("STA", ""), placeholder="12:30")
         dang_bai = c4.text_input("Đang bãi", value=edit_data.get("Đang bãi", ""), placeholder="VJ01 hoặc 3M")
         ghi_chu = c5.text_input("Ghi chú thêm (nếu có)", value=edit_data.get("Ghi chú", ""))
 
