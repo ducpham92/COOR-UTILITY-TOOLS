@@ -336,9 +336,17 @@ with tab1:
         -Điều Hành Sân Đỗ
         -Đài kiểm soát mặt đất"""
 
+    co_sags = st.sidebar.checkbox("➕ Thêm Điều hành SAGS vào Kính gửi", value=False)
+
+    if co_sags:
+        kinh_gui_base = default_kinh_gui + "
+        -Điều hành SAGS"
+    else:
+        kinh_gui_base = default_kinh_gui
+
     kinh_gui_input = st.sidebar.text_area(
         "Danh sách Kính gửi (Edit tại đây):", 
-        value=default_kinh_gui,
+        value=kinh_gui_base,
         height=150
     )
 
