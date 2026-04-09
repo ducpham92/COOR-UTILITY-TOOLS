@@ -269,6 +269,8 @@ with tab1:
                     tgk_val = plan['Thời gian kéo']
                     if 'Thời gian kéo' in changed and highlight: tgk_val = f"=={tgk_val}=="
                     line += f" dự kiến vào lúc: **{tgk_val}**"
+                else:
+                    line += f" sau khi đáp 30 phút."
                 report_lines.append(line)
 
             if plan['Kéo ga lớn'] == "CÓ":
