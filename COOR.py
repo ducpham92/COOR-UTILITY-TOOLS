@@ -327,7 +327,7 @@ with tab1:
         html = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', html)
         # Xử lý thụt lề (4 dấu cách) -> &nbsp;
         html = html.replace('    ', '&nbsp;&nbsp;&nbsp;&nbsp;')
-        return f'<div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; color: black;">{html}</div>'
+        return f'<div style="font-family: Arial; font-size: 14px; line-height: 1.5; color: black;">{html}</div>'
 
     # --- SIDEBAR - Cấu hình ---
     st.sidebar.header("⚙️ Cấu hình Mail mẫu")
@@ -421,7 +421,8 @@ with tab1:
                 st.session_state.editing_index = None
                 st.success("Đã cập nhật kế hoạch!")
             else:
-                new_plan['changed_fields'] = []
+                # Thêm mới: highlight dòng tiêu đề (Tàu, Chuyến, STA, Đang bãi, Ghi chú)
+                new_plan['changed_fields'] = ['Tàu', 'Chuyến', 'STA', 'Đang bãi', 'Ghi chú']
                 st.session_state.plans.append(new_plan)
                 save_plans(st.session_state.plans)
                 st.success("Đã thêm kế hoạch mới!")
