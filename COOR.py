@@ -10,6 +10,25 @@ import os
 
 st.set_page_config(page_title="COOR TOOL VJ DAD", layout="wide")
 
+st.markdown("""
+<style>
+    /* Tab Kế hoạch Kéo tàu & Request GPU: Arial 12px */
+    [data-testid="stTabsContent"] *:not(pre):not(code):not(.stMarkdown h1):not(.stMarkdown h2):not(.stMarkdown h3) {
+        font-family: Arial, sans-serif !important;
+        font-size: 12pt !important;
+    }
+    /* Giữ nguyên tiêu đề lớn */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+        font-family: Arial, sans-serif !important;
+    }
+    /* Input, selectbox, text_area */
+    input, textarea, select, .stSelectbox div {
+        font-family: Arial, sans-serif !important;
+        font-size: 12pt !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Lấy giờ Việt Nam
 now_vn = datetime.now(timezone(timedelta(hours=7)))
 
@@ -390,8 +409,7 @@ with tab1:
 
         st.write("Thông tin khác:")
         c1, c2 = st.columns(2)
-        dv_idx = ["VJ", "SAGS"].index(edit_data.get("Đơn vị kéo", "VJ")) if edit_data.get("Đơn vị kéo", "VJ") in ["VJ", "SAGS"] else 0
-        don_vi = c1.selectbox("Đơn vị kéo", ["VJ", "SAGS"], index=dv_idx)
+        don_vi = c1.text_input("Đơn vị kéo", value=edit_data.get("Đơn vị kéo", "VJ"))
         
         asu_idx = ["KHÔNG", "CÓ"].index(edit_data.get("ASU-GPU", "KHÔNG"))
         asu_gpu = c2.selectbox("Cần ASU/GPU?", ["KHÔNG", "CÓ"], index=asu_idx)
