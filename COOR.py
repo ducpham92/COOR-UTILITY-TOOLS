@@ -269,6 +269,8 @@ with tab1:
                     tgk_val = plan['Thời gian kéo']
                     if 'Thời gian kéo' in changed and highlight: tgk_val = f"=={tgk_val}=="
                     line += f" dự kiến vào lúc: **{tgk_val}**"
+                else:
+                    line += f" sau khi đáp 30 phút."
                 report_lines.append(line)
 
             if plan['Kéo ga lớn'] == "CÓ":
@@ -280,12 +282,21 @@ with tab1:
                 report_lines.append(line)
             
             if plan['Kéo khai thác'] == "CÓ":
-                if not plan['Thời gian kéo khai thác'] or plan['Thời gian kéo khai thác'] == "THÔNG BÁO SAU":
+                tgkt = plan['Thời gian kéo khai thác']
+                ktch = plan['Khai thác chuyến']
+                if not tgkt or tgkt == "THÔNG BÁO SAU":
+                    # Không có giờ → THÔNG BÁO SAU
                     line = "    - Kéo ra bãi khai thác: **CÓ**. Thời gian dự kiến: **THÔNG BÁO SAU**"
+                elif tgkt and not ktch:
+                    # Có giờ nhưng không có chuyến bay khai thác
+                    tgkt_val = tgkt
+                    if 'Thời gian kéo khai thác' in changed and highlight: tgkt_val = f"=={tgkt_val}=="
+                    line = f"    - Kéo ra bãi khai thác: **CÓ**. Thời gian dự kiến: **{tgkt_val}**"
                 else:
-                    ktch_val = plan['Khai thác chuyến']
+                    # Có đủ cả giờ lẫn chuyến bay khai thác
+                    ktch_val = ktch
                     if 'Khai thác chuyến' in changed and highlight: ktch_val = f"=={ktch_val}=="
-                    tgkt_val = plan['Thời gian kéo khai thác']
+                    tgkt_val = tgkt
                     if 'Thời gian kéo khai thác' in changed and highlight: tgkt_val = f"=={tgkt_val}=="
                     line = f"    - Kéo ra bãi khai thác chuyến: **{ktch_val}**. Thời gian dự kiến: **{tgkt_val}**"
                 report_lines.append(line)
@@ -301,6 +312,8 @@ with tab1:
 
         # Footer cố định
         report_lines.append("Kính mong TBT, ĐHSĐ sắp xếp tàu về bến thuận tiện cho việc kéo đẩy.")
+        if "SAGS" in kinh_gui.upper():
+            report_lines.append("Điều hành SAGS nhận tốt thông tin và phản hồi!")
         report_lines.append("VJ sẽ cập nhật thông tin khi kế hoạch thay đổi.")
         
         return "\n".join(report_lines)
@@ -323,9 +336,16 @@ with tab1:
         -Điều Hành Sân Đỗ
         -Đài kiểm soát mặt đất"""
 
+    co_sags = st.sidebar.checkbox("➕ Thêm Điều hành SAGS vào Kính gửi", value=False)
+
+    if co_sags:
+        kinh_gui_base = default_kinh_gui + "\n        -Điều hành SAGS"
+    else:
+        kinh_gui_base = default_kinh_gui
+
     kinh_gui_input = st.sidebar.text_area(
         "Danh sách Kính gửi (Edit tại đây):", 
-        value=default_kinh_gui,
+        value=kinh_gui_base,
         height=150
     )
 
@@ -347,7 +367,7 @@ with tab1:
         c1, c2, c3, c4, c5 = st.columns(5)
         tau = c1.text_input("Tàu (VN-)", value=edit_data.get("Tàu", ""), placeholder="A662")
         chuyen = c2.text_input("Chuyến", value=edit_data.get("Chuyến", ""), placeholder="VJ703")
-        sta = c3.text_input("STA / Ghi chú", value=edit_data.get("STA", ""), placeholder="12:30 hoặc PHASE CHECK")
+        sta = c3.text_input("STA", value=edit_data.get("STA", ""), placeholder="12:30")
         dang_bai = c4.text_input("Đang bãi", value=edit_data.get("Đang bãi", ""), placeholder="VJ01 hoặc 3M")
         ghi_chu = c5.text_input("Ghi chú thêm (nếu có)", value=edit_data.get("Ghi chú", ""))
 
