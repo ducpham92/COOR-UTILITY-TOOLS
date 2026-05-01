@@ -217,11 +217,7 @@ with tab1:
             report_lines.extend(kinh_gui.split('\n'))
         
         report_lines.append("") # Dòng trống sau Kính gửi
-        has_update = any(plan.get('changed_fields') for plan in plans)
-        if has_update:
-            report_lines.append(f"VJ DAD gửi ==**CẬP NHẬT**== kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
-        else:
-            report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
+        report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
         report_lines.append("")
 
         # Body
@@ -313,13 +309,8 @@ with tab1:
         """Chuyển đổi Markdown sang HTML để hỗ trợ copy paste bôi đen giữ định dạng."""
         html = markdown_text.replace('\n', '<br>')
         # Xử lý highlight ==text== -> <span style="background-color: yellow">text</span>
-        # (xử lý bold bên trong highlight trước)
-        def replace_highlight(m):
-            inner = m.group(1)
-            inner = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', inner)
-            return f'<span style="background-color: #FFFF00; color: black; padding: 0 2px; border-radius: 2px; font-weight: bold;">{inner}</span>'
-        html = re.sub(r'==(.*?)==', replace_highlight, html)
-        # Xử lý in đậm **text** -> <b>text</b> (những chỗ còn lại ngoài highlight)
+        html = re.sub(r'==(.*?)==', r'<span style="background-color: #FFFF00; color: black; padding: 0 2px; border-radius: 2px;">\1</span>', html)
+        # Xử lý in đậm **text** -> <b>text</b>
         html = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', html)
         # Xử lý thụt lề (4 dấu cách) -> &nbsp;
         html = html.replace('    ', '&nbsp;&nbsp;&nbsp;&nbsp;')
