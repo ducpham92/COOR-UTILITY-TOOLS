@@ -217,7 +217,14 @@ with tab1:
             report_lines.extend(kinh_gui.split('\n'))
         
         report_lines.append("") # Dòng trống sau Kính gửi
-        report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
+        has_update = any(
+            plan.get('changed_fields') and not plan.get('is_new', True)
+            for plan in plans
+        )
+        if has_update:
+            report_lines.append(f"VJ DAD gửi ==**CẬP NHẬT**== kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
+        else:
+            report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
         report_lines.append("")
 
         # Body
@@ -416,13 +423,14 @@ with tab1:
                         changed_fields.append(k)
                 
                 new_plan['changed_fields'] = changed_fields
+                new_plan['is_new'] = False
                 st.session_state.plans[edit_idx] = new_plan
                 save_plans(st.session_state.plans)
                 st.session_state.editing_index = None
                 st.success("Đã cập nhật kế hoạch!")
             else:
-                # Thêm mới: highlight dòng tiêu đề (Tàu, Chuyến, STA, Đang bãi, Ghi chú)
                 new_plan['changed_fields'] = ['Tàu', 'Chuyến', 'STA', 'Đang bãi', 'Ghi chú']
+                new_plan['is_new'] = True
                 st.session_state.plans.append(new_plan)
                 save_plans(st.session_state.plans)
                 st.success("Đã thêm kế hoạch mới!")
