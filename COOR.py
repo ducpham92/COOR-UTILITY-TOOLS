@@ -10,25 +10,6 @@ import os
 
 st.set_page_config(page_title="COOR TOOL VJ DAD", layout="wide")
 
-st.markdown("""
-<style>
-    /* Tab Kế hoạch Kéo tàu & Request GPU: Arial 12px */
-    [data-testid="stTabsContent"] *:not(pre):not(code):not(.stMarkdown h1):not(.stMarkdown h2):not(.stMarkdown h3) {
-        font-family: Arial, sans-serif !important;
-        font-size: 12pt !important;
-    }
-    /* Giữ nguyên tiêu đề lớn */
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        font-family: Arial, sans-serif !important;
-    }
-    /* Input, selectbox, text_area */
-    input, textarea, select, .stSelectbox div {
-        font-family: Arial, sans-serif !important;
-        font-size: 12pt !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Lấy giờ Việt Nam
 now_vn = datetime.now(timezone(timedelta(hours=7)))
 
@@ -346,7 +327,7 @@ with tab1:
         html = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', html)
         # Xử lý thụt lề (4 dấu cách) -> &nbsp;
         html = html.replace('    ', '&nbsp;&nbsp;&nbsp;&nbsp;')
-        return f'<div style="font-family: Arial; font-size: 14px; line-height: 1.5; color: black;">{html}</div>'
+        return f'<div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; color: black;">{html}</div>'
 
     # --- SIDEBAR - Cấu hình ---
     st.sidebar.header("⚙️ Cấu hình Mail mẫu")
