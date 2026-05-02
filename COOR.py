@@ -217,35 +217,31 @@ with tab1:
             report_lines.extend(kinh_gui.split('\n'))
         
         report_lines.append("") # Dòng trống sau Kính gửi
-        has_update = any(
-            plan.get('changed_fields') and not plan.get('is_new', True)
-            for plan in plans
-        )
-        if has_update:
-            report_lines.append(f"VJ DAD gửi ==**CẬP NHẬT**== kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
-        else:
-            report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
+        report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
         report_lines.append("")
 
         # Body
         for i, plan in enumerate(plans):
             changed = plan.get('changed_fields', [])
-            
+            is_new = plan.get('is_new', False)
+            # Tiêu đề: plan mới luôn highlight, plan chỉnh sửa theo toggle
+            hl_title = True if is_new else highlight
+
             # Tiêu đề mục (Ưu tiên hiển thị Đang bãi)
             tau_str = f"VN-{plan['Tàu']}"
-            if 'Tàu' in changed and highlight: tau_str = f"=={tau_str}=="
+            if 'Tàu' in changed and hl_title: tau_str = f"=={tau_str}=="
             
             if plan.get('Đang bãi'):
                 db_str = f"Đang bãi {plan['Đang bãi']}"
-                if 'Đang bãi' in changed and highlight: db_str = f"=={db_str}=="
+                if 'Đang bãi' in changed and hl_title: db_str = f"=={db_str}=="
                 title = f"**{i+1}. {tau_str}/ {db_str}**"
             else:
                 ch_str = plan['Chuyến']
-                if 'Chuyến' in changed and highlight: ch_str = f"=={ch_str}=="
+                if 'Chuyến' in changed and hl_title: ch_str = f"=={ch_str}=="
                 title = f"**{i+1}. {tau_str}/{ch_str}**"
                 if plan['STA']:
                     sta_str = f"STA {plan['STA']}"
-                    if 'STA' in changed and highlight: sta_str = f"=={sta_str}=="
+                    if 'STA' in changed and hl_title: sta_str = f"=={sta_str}=="
                     title += f" **{sta_str}**"
             
             if plan['Ghi chú']:
@@ -257,7 +253,7 @@ with tab1:
                 else:
                     gc_display = plan['Ghi chú']
                 gc_str = f"({gc_display})"
-                if 'Ghi chú' in changed and highlight: gc_str = f"=={gc_str}=="
+                if 'Ghi chú' in changed and hl_title: gc_str = f"=={gc_str}=="
                 title += f" **{gc_str}**"
             report_lines.append(title)
             # Kiểm tra điều kiện ẩn chi tiết
@@ -423,14 +419,12 @@ with tab1:
                         changed_fields.append(k)
                 
                 new_plan['changed_fields'] = changed_fields
-                new_plan['is_new'] = False
                 st.session_state.plans[edit_idx] = new_plan
                 save_plans(st.session_state.plans)
                 st.session_state.editing_index = None
                 st.success("Đã cập nhật kế hoạch!")
             else:
-                new_plan['changed_fields'] = ['Tàu', 'Chuyến', 'STA', 'Đang bãi', 'Ghi chú']
-                new_plan['is_new'] = True
+                new_plan['changed_fields'] = []
                 st.session_state.plans.append(new_plan)
                 save_plans(st.session_state.plans)
                 st.success("Đã thêm kế hoạch mới!")
