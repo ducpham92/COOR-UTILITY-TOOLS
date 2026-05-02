@@ -183,6 +183,8 @@ with tab1:
         st.session_state.plans = load_plans()
     if 'editing_index' not in st.session_state:
         st.session_state.editing_index = None
+    if 'mail_count' not in st.session_state:
+        st.session_state.mail_count = 0
 
     # --- HÀM HỖ TRỢ ---
     def create_word_document(content):
@@ -205,7 +207,7 @@ with tab1:
         bio.seek(0)
         return bio.getvalue()
 
-    def generate_report_content(plans, highlight=False, kinh_gui=""):
+    def generate_report_content(plans, highlight=False, kinh_gui="", mail_count=0):
         today_str = now_vn.strftime('%d/%m/%Y')
         
         # Header 
@@ -217,15 +219,22 @@ with tab1:
             report_lines.extend(kinh_gui.split('\n'))
         
         report_lines.append("") # Dòng trống sau Kính gửi
-        report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
+        has_update = (mail_count >= 2) or any(
+            plan.get('changed_fields') and not plan.get('is_new', True)
+            for plan in plans
+        )
+        if has_update:
+            report_lines.append(f"VJ DAD gửi ==**CẬP NHẬT**== kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
+        else:
+            report_lines.append(f"VJ DAD gửi kế hoạch kéo/đẩy tàu bay ngày {today_str} như sau:")
         report_lines.append("")
 
         # Body
         for i, plan in enumerate(plans):
             changed = plan.get('changed_fields', [])
             is_new = plan.get('is_new', False)
-            # Tiêu đề: plan mới luôn highlight, plan chỉnh sửa theo toggle
-            hl_title = True if is_new else highlight
+            # Plan mới bôi vàng tiêu đề từ lần tạo mail thứ 2; edit theo toggle
+            hl_title = (is_new and mail_count >= 2) or (not is_new and highlight)
 
             # Tiêu đề mục (Ưu tiên hiển thị Đang bãi)
             tau_str = f"VN-{plan['Tàu']}"
@@ -324,9 +333,13 @@ with tab1:
     def convert_to_html(markdown_text):
         """Chuyển đổi Markdown sang HTML để hỗ trợ copy paste bôi đen giữ định dạng."""
         html = markdown_text.replace('\n', '<br>')
-        # Xử lý highlight ==text== -> <span style="background-color: yellow">text</span>
-        html = re.sub(r'==(.*?)==', r'<span style="background-color: #FFFF00; color: black; padding: 0 2px; border-radius: 2px;">\1</span>', html)
-        # Xử lý in đậm **text** -> <b>text</b>
+        # Xử lý highlight ==text== (xử lý bold bên trong trước)
+        def replace_highlight(m):
+            inner = m.group(1)
+            inner = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', inner)
+            return f'<span style="background-color: #FFFF00; color: black; padding: 0 2px; border-radius: 2px;">{inner}</span>'
+        html = re.sub(r'==(.*?)==', replace_highlight, html)
+        # Xử lý in đậm **text** -> <b>text</b> (những chỗ ngoài highlight)
         html = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', html)
         # Xử lý thụt lề (4 dấu cách) -> &nbsp;
         html = html.replace('    ', '&nbsp;&nbsp;&nbsp;&nbsp;')
@@ -419,12 +432,14 @@ with tab1:
                         changed_fields.append(k)
                 
                 new_plan['changed_fields'] = changed_fields
+                new_plan['is_new'] = False
                 st.session_state.plans[edit_idx] = new_plan
                 save_plans(st.session_state.plans)
                 st.session_state.editing_index = None
                 st.success("Đã cập nhật kế hoạch!")
             else:
-                new_plan['changed_fields'] = []
+                new_plan['changed_fields'] = ['Tàu', 'Chuyến', 'STA', 'Đang bãi', 'Ghi chú']
+                new_plan['is_new'] = True
                 st.session_state.plans.append(new_plan)
                 save_plans(st.session_state.plans)
                 st.success("Đã thêm kế hoạch mới!")
@@ -500,11 +515,13 @@ with tab1:
         if not st.session_state.plans:
             st.warning("Vui lòng thêm ít nhất một kế hoạch trước khi tạo mail.")
         else:
+            st.session_state.mail_count += 1
             st.subheader("📧 4. Kết quả Mail mẫu")
             report_content = generate_report_content(
-                st.session_state.plans, 
-                highlight=show_highlight, 
-                kinh_gui=kinh_gui_input
+                st.session_state.plans,
+                highlight=show_highlight,
+                kinh_gui=kinh_gui_input,
+                mail_count=st.session_state.mail_count
             )
             
             # Hiển thị HTML để người dùng có thể bôi đen và copy paste giữ định dạng
