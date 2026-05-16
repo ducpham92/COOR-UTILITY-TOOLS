@@ -395,12 +395,12 @@ with tab1:
         st.write("Kéo ra ga lớn & khai thác:")
         c1, c2, c3, c4, c5 = st.columns(5)
         
-        keo_ga_lon_tick = c1.checkbox("Kéo ga lớn: CÓ", value=edit_data.get("Kéo ga lớn", "KHÔNG") == "CÓ")
-        keo_ga_lon = "CÓ" if keo_ga_lon_tick else "KHÔNG"
+        kg_idx = ["KHÔNG", "CÓ"].index(edit_data.get("Kéo ga lớn", "KHÔNG"))
+        keo_ga_lon = c1.selectbox("Kéo ga lớn?", ["KHÔNG", "CÓ"], index=kg_idx)
         tg_ga_lon = c2.text_input("Giờ kéo ga lớn", value=edit_data.get("Thời gian kéo ga lớn", "THÔNG BÁO SAU"))
         
-        keo_kt_tick = c3.checkbox("Kéo khai thác: CÓ", value=edit_data.get("Kéo khai thác", "CÓ") == "CÓ")
-        keo_kt = "CÓ" if keo_kt_tick else "KHÔNG"
+        kk_idx = ["CÓ", "KHÔNG"].index(edit_data.get("Kéo khai thác", "CÓ"))
+        keo_kt = c3.selectbox("Kéo khai thác?", ["CÓ", "KHÔNG"], index=kk_idx)
         kt_chuyen = c4.text_input("Chuyến khai thác", value=edit_data.get("Khai thác chuyến", ""), placeholder="VJ703")
         tg_kt = c5.text_input("Giờ kéo khai thác", value=edit_data.get("Thời gian kéo khai thác", "THÔNG BÁO SAU"))
 
