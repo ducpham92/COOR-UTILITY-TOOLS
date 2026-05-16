@@ -237,7 +237,8 @@ with tab1:
             hl_title = (is_new and mail_count >= 2) or (not is_new and highlight)
 
             # Tiêu đề mục (Ưu tiên hiển thị Đang bãi)
-            tau_str = f"VN-{plan['Tàu']}"
+            neo_tag = " (A321 NEO)" if plan.get("A321 NEO") else ""
+            tau_str = f"VN-{plan['Tàu']}{neo_tag}"
             if 'Tàu' in changed and hl_title: tau_str = f"=={tau_str}=="
             
             if plan.get('Đang bãi'):
@@ -382,6 +383,7 @@ with tab1:
         st.write("Điền thông tin cho một tàu bay và nhấn nút Thêm/Cập nhật.")
         c1, c2, c3, c4, c5 = st.columns(5)
         tau = c1.text_input("Tàu (VN-)", value=edit_data.get("Tàu", ""), placeholder="A662")
+        is_neo = c1.checkbox("A321 NEO", value=edit_data.get("A321 NEO", False))
         chuyen = c2.text_input("Chuyến", value=edit_data.get("Chuyến", ""), placeholder="VJ703")
         sta = c3.text_input("STA", value=edit_data.get("STA", ""), placeholder="12:30")
         dang_bai = c4.text_input("Đang bãi", value=edit_data.get("Đang bãi", ""), placeholder="VJ01 hoặc 3M")
@@ -417,7 +419,7 @@ with tab1:
         
         if submitted and tau:
             new_plan = {
-                "Tàu": tau, "Chuyến": chuyen, "STA": sta, "Đang bãi": dang_bai, "Ghi chú": ghi_chu,
+                "Tàu": tau, "A321 NEO": is_neo, "Chuyến": chuyen, "STA": sta, "Đang bãi": dang_bai, "Ghi chú": ghi_chu,
                 "Kéo tới": keo_toi, "Thời gian kéo": tg_keo,
                 "Kéo ga lớn": keo_ga_lon, "Thời gian kéo ga lớn": tg_ga_lon,
                 "Kéo khai thác": keo_kt, "Khai thác chuyến": kt_chuyen, "Thời gian kéo khai thác": tg_kt,
