@@ -411,8 +411,8 @@ with tab1:
         don_vi_sags = c1.checkbox("SAGS kéo", value=edit_data.get("Đơn vị kéo", "VJ") == "SAGS")
         don_vi = "SAGS" if don_vi_sags else "VJ"
         
-        asu_idx = ["KHÔNG", "CÓ"].index(edit_data.get("ASU-GPU", "KHÔNG"))
-        asu_gpu = c2.selectbox("Cần ASU/GPU?", ["KHÔNG", "CÓ"], index=asu_idx)
+        asu_tick = c2.checkbox("Cần ASU/GPU", value=edit_data.get("ASU-GPU", "KHÔNG") == "CÓ")
+        asu_gpu = "CÓ" if asu_tick else "KHÔNG"
 
         btn_label = "➕ Thêm vào danh sách" if edit_idx is None else "💾 Cập nhật kế hoạch"
         submitted = st.form_submit_button(btn_label, use_container_width=True)
