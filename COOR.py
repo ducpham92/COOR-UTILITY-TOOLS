@@ -237,7 +237,8 @@ with tab1:
             hl_title = (is_new and mail_count >= 2) or (not is_new and highlight)
 
             # Tiêu đề mục (Ưu tiên hiển thị Đang bãi)
-            tau_str = f"VN-{plan['Tàu']}"
+            neo_tag = " (A321 NEO)" if plan.get("A321 NEO") else ""
+            tau_str = f"VN-{plan['Tàu']}{neo_tag}"
             if 'Tàu' in changed and hl_title: tau_str = f"=={tau_str}=="
             
             if plan.get('Đang bãi'):
@@ -382,6 +383,7 @@ with tab1:
         st.write("Điền thông tin cho một tàu bay và nhấn nút Thêm/Cập nhật.")
         c1, c2, c3, c4, c5 = st.columns(5)
         tau = c1.text_input("Tàu (VN-)", value=edit_data.get("Tàu", ""), placeholder="A662")
+        is_neo = c1.checkbox("A321 NEO", value=edit_data.get("A321 NEO", False))
         chuyen = c2.text_input("Chuyến", value=edit_data.get("Chuyến", ""), placeholder="VJ703")
         sta = c3.text_input("STA", value=edit_data.get("STA", ""), placeholder="12:30")
         dang_bai = c4.text_input("Đang bãi", value=edit_data.get("Đang bãi", ""), placeholder="VJ01 hoặc 3M")
@@ -395,18 +397,19 @@ with tab1:
         st.write("Kéo ra ga lớn & khai thác:")
         c1, c2, c3, c4, c5 = st.columns(5)
         
-        kg_idx = ["KHÔNG", "CÓ"].index(edit_data.get("Kéo ga lớn", "KHÔNG"))
-        keo_ga_lon = c1.selectbox("Kéo ga lớn?", ["KHÔNG", "CÓ"], index=kg_idx)
+        keo_ga_lon_tick = c1.checkbox("Kéo ga lớn", value=edit_data.get("Kéo ga lớn", "KHÔNG") == "CÓ")
+        keo_ga_lon = "CÓ" if keo_ga_lon_tick else "KHÔNG"
         tg_ga_lon = c2.text_input("Giờ kéo ga lớn", value=edit_data.get("Thời gian kéo ga lớn", "THÔNG BÁO SAU"))
         
-        kk_idx = ["CÓ", "KHÔNG"].index(edit_data.get("Kéo khai thác", "CÓ"))
-        keo_kt = c3.selectbox("Kéo khai thác?", ["CÓ", "KHÔNG"], index=kk_idx)
+        keo_kt_tick = c3.checkbox("Kéo khai thác", value=edit_data.get("Kéo khai thác", "CÓ") == "CÓ")
+        keo_kt = "CÓ" if keo_kt_tick else "KHÔNG"
         kt_chuyen = c4.text_input("Chuyến khai thác", value=edit_data.get("Khai thác chuyến", ""), placeholder="VJ703")
         tg_kt = c5.text_input("Giờ kéo khai thác", value=edit_data.get("Thời gian kéo khai thác", "THÔNG BÁO SAU"))
 
         st.write("Thông tin khác:")
         c1, c2 = st.columns(2)
-        don_vi = c1.text_input("Đơn vị kéo", value=edit_data.get("Đơn vị kéo", "VJ"))
+        don_vi_sags = c1.checkbox("SAGS kéo", value=edit_data.get("Đơn vị kéo", "VJ") == "SAGS")
+        don_vi = "SAGS" if don_vi_sags else "VJ"
         
         asu_idx = ["KHÔNG", "CÓ"].index(edit_data.get("ASU-GPU", "KHÔNG"))
         asu_gpu = c2.selectbox("Cần ASU/GPU?", ["KHÔNG", "CÓ"], index=asu_idx)
@@ -416,7 +419,7 @@ with tab1:
         
         if submitted and tau:
             new_plan = {
-                "Tàu": tau, "Chuyến": chuyen, "STA": sta, "Đang bãi": dang_bai, "Ghi chú": ghi_chu,
+                "Tàu": tau, "A321 NEO": is_neo, "Chuyến": chuyen, "STA": sta, "Đang bãi": dang_bai, "Ghi chú": ghi_chu,
                 "Kéo tới": keo_toi, "Thời gian kéo": tg_keo,
                 "Kéo ga lớn": keo_ga_lon, "Thời gian kéo ga lớn": tg_ga_lon,
                 "Kéo khai thác": keo_kt, "Khai thác chuyến": kt_chuyen, "Thời gian kéo khai thác": tg_kt,
