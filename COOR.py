@@ -406,9 +406,7 @@ with tab1:
 
         st.write("Thông tin khác:")
         c1, c2 = st.columns(2)
-        don_vi_vj = c1.checkbox("VJ kéo", value=edit_data.get("Đơn vị kéo", "VJ") == "VJ")
         don_vi_sags = c1.checkbox("SAGS kéo", value=edit_data.get("Đơn vị kéo", "VJ") == "SAGS")
-        # Ưu tiên SAGS nếu cả hai đều tick, mặc định VJ
         don_vi = "SAGS" if don_vi_sags else "VJ"
         
         asu_idx = ["KHÔNG", "CÓ"].index(edit_data.get("ASU-GPU", "KHÔNG"))
